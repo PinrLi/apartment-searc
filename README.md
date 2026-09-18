@@ -65,7 +65,59 @@ npm start
 
 Dashboard excludes rejected and signed buildings. Buildings includes every status; Rejected is the searchable rejection archive. Dashboard priority is Finalist, Tour, Shortlist, Watch, Unreviewed; the score view ignores stage. Ties use building name. Cost, size, availability, and lease filters apply to the displayed best qualifying unit. The Units page shows all inventory, including failures and inactive units.
 
+### Managing several units in one building
+
+Building Detail has a **Unit Inventory** table with each unit's rent, parking and total costs, availability, lease, floor, score, filter result, and active state. The **BEST CURRENT UNIT** row is the qualifying active unit used for opportunity score and ranking. Open the filter result's **Details** button for explicit failures, warnings, score breakdown, notes, and timestamps.
+
+- **+ Add Unit** goes directly to a unit form for that building. Save returns to Building Detail with recalculated inventory and scores; no building facts are re-entered. Evaluation preview is optional.
+- **Edit Building** edits only permanent building facts and saves directly. **Edit Unit** edits that unit by its existing ID, preserving price/availability history and leaving sibling units untouched.
+- Use **Mark inactive** when a listing disappears; its history is retained and it stops contributing to opportunity score/ranking. **Show inactive units** reveals older inventory, where **Mark active** can restore it. Deleting a unit requires confirmation.
+- The initial Add Apartment wizard still checks the address, collects building facts, optionally adds the first unit, and previews before saving. Duplicate matches link directly to the existing building's unit or building editor.
+
+These flows use the existing one-to-many relationship and rules. A viable building with no qualifying active inventory stays WATCH unless manually overridden. A failing unit never disqualifies another qualifying unit in the same building.
+
 ## Rules and deliberate choices
+
+### Paste apartment JSON
+
+Use **Paste JSON** beside Add Apartment, or **Add / Update via JSON** on Building Detail. Manual forms remain available. Paste a plain JSON object (without Markdown code fences), select **Validate** or **Preview**, review the proposed records and scores, then **Save**. Validation does not write records; saving is disabled until a successful preview. Editing the JSON or changing the merge choice requires another preview.
+
+```json
+{
+  "building": {
+    "name": "Windsor Ballard",
+    "address": "5555 14th Ave NW, Seattle, WA 98107",
+    "aliases": ["Windsor"],
+    "parking_type": "garage",
+    "has_in_unit_washer_dryer": "yes",
+    "safety_score": 8,
+    "quiet_score": 6
+  },
+  "units": [
+    {
+      "unit_number": "247",
+      "sqft": 654,
+      "base_rent": 2174,
+      "parking_cost": 115,
+      "mandatory_monthly_fees": 91,
+      "available_date": "2026-10-31",
+      "lease_length_months": 12,
+      "unit_quality_score": null,
+      "active": true
+    }
+  ]
+}
+```
+
+The example is illustrative manual input. **Copy JSON Template** copies the full supported factual structure with unknowns/defaults; **Show JSON Format** displays it. Globally, `building.name` and `building.address` are required. From Building Detail, the building is already known, so `{"units": [...]}` works by itself. `units` may be empty or omitted. Unknown numeric values and dates can be `null`; optional text can be omitted or empty, and enum values must match the existing schema.
+
+- Exact normalized-address matches default to **Keep existing building facts and only add/update units**. Choose **Merge supplied building facts** deliberately to update those facts. Omitted fields retain existing values; for new records they use normal schema defaults. Supplied building aliases are combined; building and unit notes are appended rather than erased.
+- Numbered units are matched within that building by normalized unit number. Preview labels each supplied unit NEW UNIT, EXISTING UNIT, or UNNUMBERED UNIT and shows existing-unit diffs. Updates retain IDs, first-seen timestamps, and change history. Blank numbers create separate units with a warning. Repeated numbered units within one paste are rejected so the same unit cannot receive conflicting updates in a batch.
+- `manual_status_override`, `rejection_reason`, `toured`, `tour_date`, `finalist`, and `signed` cannot be supplied through this shortcut. Use the existing manual review controls for those decisions. Existing decisions stay in place during a merge. IDs, derived scores, and unrelated fields are rejected rather than silently ignored.
+- Omitted units are never removed or deactivated. Supplying `active: false` explicitly updates that unit, with a diff in the preview. All writes occur in one SQLite transaction. If data/settings changed after preview, Save asks for another preview instead of applying stale changes.
+- Preview uses the same filter, scoring, opportunity, status, and ranking engine as the manual forms. Failed or unresolved units may still be saved for later review. Syntax errors include the parser message and line/column when available; schema errors name paths such as `units[1].sqft`.
+
+This paste format is a manual entry shortcut. The versioned full-backup JSON import/export under Settings remains a separate workflow.
 
 ### Quick Apartment Search
 
@@ -125,9 +177,13 @@ shared/engine.ts      Filters, price/lease/size scoring, auto status, ranking
 server/store.ts       SQLite schema, CRUD, transactions, history
 server/index.ts       Express API and local frontend server
 server/import.ts      Validated import preview and deduplicating import
+server/paste.ts       Apartment JSON validation, diffs, preview, atomic add/update
 server/seed.ts        Optional illustrative demo records
 server/backup.ts      Consistent SQLite backup command
-src/main.tsx          Dashboard, forms, details, rejected archive, settings
+src/main.tsx          React entry point
+src/App.tsx           Dashboard, separate editors, details, rejected archive, settings
+src/UnitInventory.tsx Building inventory table and inactive toggle
+src/JsonPaste.tsx     JSON paste, template, validation and preview screen
 src/style.css         Compact, responsive desktop-first UI
 tests/               Rule, persistence, import, and API tests
 data/                Local SQLite files (ignored by git)

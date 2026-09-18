@@ -9,6 +9,73 @@
   font-synthesis: none;
   font-size: 14px;
 }
+.json-paste-label {
+  margin-top: 22px;
+}
+.json-paste-input {
+  min-height: 360px;
+  font-family: ui-monospace, Consolas, monospace;
+  line-height: 1.55;
+  tab-size: 2;
+}
+.json-format {
+  max-width: 850px;
+}
+.json-format summary {
+  font-weight: 600;
+  color: #205f51;
+}
+.paste-unit-review {
+  padding: 12px 0;
+  border-bottom: 1px solid #dfe6e1;
+}
+.paste-diff {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.unit-inventory {
+  border-top: 3px solid #205f51;
+}
+.unit-inventory > .inline {
+  margin-bottom: 18px;
+}
+.inventory-best {
+  background: #edf6ef;
+}
+.best-unit-label {
+  color: #22623f;
+  font-weight: 700;
+  font-size: 10px;
+}
+.inventory-inactive {
+  color: #77847b;
+  background: #f7f8f7;
+}
+.inventory-actions {
+  display: flex;
+  gap: 6px;
+}
+.inventory-actions .button,
+.inventory-actions button {
+  font-size: 11px;
+  padding: 7px 9px;
+}
+.inventory-details {
+  white-space: normal;
+  background: #f9fbf9;
+}
+.filter-result {
+  font-size: 11px;
+}
+.filter-pass {
+  color: #22623f;
+  background: #e1f0e7;
+}
+.filter-fail {
+  color: #8c6422;
+  background: #fff2d7;
+}
 .quick-search {
   position: relative;
   flex: 1;

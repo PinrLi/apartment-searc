@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Store, Conflict } from "./store";
 import { importPlan } from "./import";
+import { planPaste, savePaste } from "./paste";
 import { buildingSchema, unitSchema } from "../shared/model";
 import { evaluateBuilding, rankBuildings } from "../shared/engine";
 import { normalizeAddress } from "../shared/normalize";
@@ -23,6 +24,8 @@ export function createApp(store: Store) {
   });
   app.use(express.json({ limit: "25mb" }));
   app.get("/api/state", (_q, r) => r.json(store.snapshot()));
+  app.post("/api/paste/preview", (q, r) => r.json(planPaste(store, q.body)));
+  app.post("/api/paste/save", (q, r) => r.json(savePaste(store, q.body)));
   app.get("/api/duplicate", (q, r) =>
     r.json(
       store
