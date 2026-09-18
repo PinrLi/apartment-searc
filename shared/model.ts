@@ -32,6 +32,19 @@ const optionalDate = date.nullable().default(null);
 export const buildingSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
+    aliases: z
+      .array(z.string().trim().max(200))
+      .max(50)
+      .default([])
+      .transform((values) =>
+        values.filter(
+          (value, index, all) =>
+            value &&
+            all.findIndex(
+              (other) => other.toLowerCase() === value.toLowerCase(),
+            ) === index,
+        ),
+      ),
     address: z.string().trim().min(3).max(500),
     neighborhood: z.string().max(200).default(""),
     safety_score: score,

@@ -34,11 +34,20 @@ test("HTTP workflows: preview, duplicate conflicts, update, history, export, del
     assert.equal((await request("/apartment", { building: b })).status, 409);
     const added = await (
       await request("/apartment", {
-        building: { name: "API entry", address: "777 Test Road" },
+        building: {
+          name: "API entry",
+          address: "777 Test Road",
+          aliases: ["Alternate API name"],
+        },
         unit: { unit_number: "4", base_rent: 1900, parking_cost: 0, sqft: 600 },
       })
     ).json();
     assert(s.buildings().some((x) => x.id === added.building_id));
+    const savedState = await (await request("/state")).json();
+    assert.deepEqual(
+      savedState.buildings.find((x: any) => x.id === added.building_id).aliases,
+      ["Alternate API name"],
+    );
     assert(s.units().some((x) => x.building_id === added.building_id));
     for (const manual_status_override of [
       "TOUR",
@@ -97,6 +106,7 @@ test("HTTP workflows: preview, duplicate conflicts, update, history, export, del
     const csv = await (await request("/export/csv")).text();
     assert(csv.includes("base_plus_parking"));
     assert(csv.includes("AMLI Mark24"));
+    assert(csv.includes("Alternate API name"));
     assert.equal(
       (
         await request(

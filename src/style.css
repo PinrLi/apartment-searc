@@ -9,6 +9,124 @@
   font-synthesis: none;
   font-size: 14px;
 }
+.quick-search {
+  position: relative;
+  flex: 1;
+  max-width: 520px;
+  min-width: 220px;
+  margin: 0 24px;
+}
+.quick-search > label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #62746a;
+}
+.quick-search kbd {
+  font: inherit;
+  font-size: 10px;
+  padding: 1px 4px;
+  border: 1px solid #dce4de;
+  border-radius: 3px;
+  background: #f7f9f7;
+}
+.quick-search > input {
+  width: 100%;
+}
+.quick-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 320px;
+  max-height: min(65vh, 650px);
+  overflow-y: auto;
+  border: 1px solid #ccd8cf;
+  border-radius: 7px;
+  background: white;
+  box-shadow: 0 10px 32px #183b3426;
+  z-index: 50;
+}
+.quick-summary {
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #62746a;
+  border-bottom: 1px solid #e2e9e4;
+}
+.quick-result {
+  display: block;
+  padding: 14px;
+  color: #29463a;
+  border-bottom: 1px solid #e2e9e4;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.quick-result:hover {
+  text-decoration: none;
+}
+.quick-result[aria-selected="true"] {
+  background: #edf5ef;
+  box-shadow: inset 3px 0 #28694e;
+}
+.quick-result-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.quick-open {
+  white-space: nowrap;
+  color: #1c6652;
+  font-size: 12px;
+}
+.quick-result-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 9px 0 4px;
+}
+.quick-score-type {
+  display: inline;
+}
+.quick-rejected {
+  border-left: 4px solid #b34c43;
+  background: #fff7f5;
+}
+.quick-rejected[aria-selected="true"] {
+  background: #fdebe7;
+  box-shadow: inset 3px 0 #b34c43;
+}
+.quick-reason {
+  color: #963c34;
+  margin: 7px 0;
+}
+.quick-notes {
+  margin: 7px 0 0;
+  color: #637369;
+}
+.quick-popover > .button {
+  margin: 14px;
+}
+@media (max-width: 700px) {
+  header {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .quick-search {
+    flex-basis: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  .quick-popover {
+    min-width: 0;
+  }
+}
 * {
   box-sizing: border-box;
 }

@@ -126,6 +126,7 @@ export function createApp(store: Store) {
         rows.push({
           building_id: b.id,
           name: b.name,
+          aliases: b.aliases.join("; "),
           address: b.address,
           neighborhood: b.neighborhood,
           status: b.final_status,
@@ -190,15 +191,13 @@ export function createApp(store: Store) {
       r: express.Response,
       _n: express.NextFunction,
     ) =>
-      r
-        .status(e instanceof Conflict ? 409 : 400)
-        .json({
-          error:
-            e.issues
-              ?.map((i: any) => `${i.path.join(".")}: ${i.message}`)
-              .join("; ") ?? e.message,
-          existing: e.existing,
-        }),
+      r.status(e instanceof Conflict ? 409 : 400).json({
+        error:
+          e.issues
+            ?.map((i: any) => `${i.path.join(".")}: ${i.message}`)
+            .join("; ") ?? e.message,
+        existing: e.existing,
+      }),
   );
   return app;
 }

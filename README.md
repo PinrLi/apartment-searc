@@ -67,6 +67,20 @@ Dashboard excludes rejected and signed buildings. Buildings includes every statu
 
 ## Rules and deliberate choices
 
+### Quick Apartment Search
+
+The header search is available on every page. It searches all saved buildings, including rejected and signed properties, using an in-memory index of the loaded local database. Results update as you type, without network search or extra dependencies in the app runtime. Up to 20 results are displayed; refine the query to narrow longer lists.
+
+- Match order: exact name, exact alias, name prefix, partial/fuzzy name or alias, then address. Matching ignores case, and address queries use the same abbreviation normalization as deduplication. Name matching also tolerates spacing/punctuation differences and one-character typos or transpositions for queries of at least four characters. Ties sort by name.
+- Each result shows name, address, neighborhood, final status, opportunity/building score, review date, and a short notes preview. Rejected results have a red treatment and show the saved rejection reason or current building-level failures.
+- Press `/` outside a form field or `Ctrl/Cmd+K` anywhere in the app to focus search. Use arrow keys to select, Enter to open, and Escape to close. These shortcuts apply while the app tab is focused, not while another listing website is active.
+- No matches shows “No existing apartment found” with **Add New Apartment** (also available with Enter).
+- Edit aliases through **Building detail → Edit building → Building aliases**, one name per line. Aliases are saved in SQLite and included in JSON exports/imports. Existing records need no migration; missing aliases default to an empty list. Aliases are only search hints: normalized street address remains the authoritative duplicate key.
+
+Search logic lives in `shared/search.ts`; the header component and keyboard behavior live in `src/QuickSearch.tsx`. Automated search tests cover match ordering, case/alias/partial/address matches, rejected records, empty results, persistence, and keyboard interaction in a simulated DOM.
+
+### Evaluation rules
+
 The isolated rule engine is **`shared/engine.ts`**. Defaults, schemas, and configurable types are in **`shared/model.ts`**. Normalization is in **`shared/normalize.ts`**.
 
 - Addresses are lowercased, whitespace collapsed, punctuation removed, and common street/direction words abbreviated. Exact normalized addresses are unique in SQLite. Unit numbers are normalized within a building and unique when present.

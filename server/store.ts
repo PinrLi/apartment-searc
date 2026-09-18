@@ -55,7 +55,7 @@ export class Store {
     return this.db
       .prepare("SELECT data FROM buildings")
       .all()
-      .map((r) => JSON.parse(String(r.data)));
+      .map((r) => ({ aliases: [], ...JSON.parse(String(r.data)) }));
   }
   units(): Unit[] {
     return this.db

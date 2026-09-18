@@ -15,6 +15,7 @@ import {
   type EvaluatedUnit,
 } from "../shared/engine";
 import { normalizeUnit } from "../shared/normalize";
+import { QuickSearch } from "./QuickSearch";
 import "./style.css";
 
 async function api(
@@ -73,6 +74,12 @@ const buildingFields: FieldDef[] = [
     hint: "Include city, state, and ZIP consistently. Leave unit numbers out.",
   },
   { key: "neighborhood", label: "Neighborhood" },
+  {
+    key: "aliases",
+    label: "Building aliases",
+    type: "aliases",
+    hint: "One alternate name per line. Addresses remain the duplicate key.",
+  },
   ...[
     "safety_score",
     "quiet_score",
@@ -127,6 +134,28 @@ const unitFields: FieldDef[] = [
   { key: "active", label: "Active inventory", type: "checkbox" },
   { key: "notes", label: "Unit notes", type: "textarea" },
 ];
+function AliasField({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string[];
+  onChange: (aliases: string[]) => void;
+  disabled: boolean;
+}) {
+  const [text, setText] = useState(() => value.join("\n"));
+  return (
+    <textarea
+      disabled={disabled}
+      value={text}
+      placeholder={"AMLI Mark 24\nMark24\nMark 24"}
+      onChange={(event) => {
+        setText(event.target.value);
+        onChange(event.target.value.split("\n"));
+      }}
+    />
+  );
+}
 function Fields({
   fields,
   value,
@@ -143,7 +172,13 @@ function Fields({
       {fields.map((f) => (
         <label key={f.key} className={f.type === "textarea" ? "wide" : ""}>
           <span>{f.label}</span>
-          {f.options ? (
+          {f.type === "aliases" ? (
+            <AliasField
+              value={value[f.key] ?? []}
+              disabled={disabled}
+              onChange={(aliases) => onChange({ ...value, [f.key]: aliases })}
+            />
+          ) : f.options ? (
             <select
               disabled={disabled}
               value={value[f.key] ?? ""}
@@ -221,6 +256,11 @@ function App() {
             Apartment Ledger<small>Your search, remembered.</small>
           </span>
         </a>
+        <QuickSearch
+          buildings={state?.buildings ?? []}
+          loading={!state}
+          route={route}
+        />
         <span className="local">● Local SQLite · manual research</span>
       </header>
       <nav aria-label="Main navigation">
